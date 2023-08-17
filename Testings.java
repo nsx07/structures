@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -9,6 +10,8 @@ public class Testings {
         return scanner.nextInt();
     }
 
+    public static void a(Integer X) {}
+
     public static void main(String[] args) {
 
         Stack<Float> stack = new Stack<>(5);
@@ -18,44 +21,37 @@ public class Testings {
         stack.add(new Random().nextFloat());
 
 
-        for (int i = 0; i < stack.stack.length; i++) {
-            System.out.println(stack.stack[i]);
-        }
+        stack.forEach((x, i) -> System.out.printf("indice %d: %f \n", i, x));
 
         stack.remove();
         stack.remove();
+        
+        stack.forEach((x, i) -> System.out.printf("indice %d: %f \n", i, x));
 
-        System.out.println();
+        
+        Queue<Integer> queue = new Queue<>(5);
 
-        for (int i = 0; i < stack.stack.length; i++) {
-            System.out.println(stack.stack[i]);
-        }
+        queue.enqueue(1);
+        queue.enqueue(2);
+        queue.enqueue(3);
+        queue.enqueue(4);
+        queue.enqueue(5);
 
-        Queue<Float> queue = new Queue<>(5);
+        queue.forEach((x, i) -> System.out.printf("indice %d: %d\n", i, x));
 
-        queue.enqueue(new Random().nextFloat());
-        queue.enqueue(new Random().nextFloat());
-        queue.enqueue(new Random().nextFloat());
-        queue.enqueue(new Random().nextFloat());
+        queue.dequeue();
+        queue.enqueue(6);
+        queue.dequeue();
 
-
-        for (int i = 0; i < queue.queue.length; i++) {
-            System.out.println(queue.queue[i]);
-        }
-
-
+        queue.forEach((x, i) -> System.out.printf("indice %d: %d\n", i, x));
+        
+        queue.dequeue();
+        queue.dequeue();
         queue.dequeue();
         queue.dequeue();
 
-        queue.enqueue(new Random().nextFloat());
-
-        System.out.println();
-
-        for (int i = 0; i < stack.stack.length; i++) {
-            System.out.println(stack.stack[i]);
-        }
-
-
+        System.out.println(queue.first());
+        System.out.println(queue.last());
 
 
     }
