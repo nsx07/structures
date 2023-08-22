@@ -1,4 +1,6 @@
-import java.util.ArrayList;
+import classes.Queue;
+import classes.Stack;
+
 import java.util.Random;
 import java.util.Scanner;
 
@@ -9,8 +11,6 @@ public class Testings {
         System.out.print(message);
         return scanner.nextInt();
     }
-
-    public static void a(Integer X) {}
 
     public static void main(String[] args) {
 

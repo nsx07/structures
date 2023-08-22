@@ -1,3 +1,8 @@
+package classes;
+
+import interfaces.IStack;
+
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -5,8 +10,8 @@ import java.util.function.Consumer;
 @SuppressWarnings("unchecked")
 public class Stack<T> implements IStack<T> {
     
+    private final Object[] stack;
     private int top = -1;
-    public final Object[] stack;
 
     public Stack(int size) {
         this.stack = new Object[size];
@@ -27,17 +32,11 @@ public class Stack<T> implements IStack<T> {
         }
         return counter;
     }
-    
-    /**
-     * @return First element in stack.
-     */
+
     public T first() {
         return (T) stack[0];
     }
 
-    /**
-     * @return Last element in stack.
-     */
     public T last() {
         return !isEmpty() ? (T) stack[top] : null;
     }
@@ -45,17 +44,14 @@ public class Stack<T> implements IStack<T> {
     public void add(T element) {
         if (!isFull()) {
             top++;
-
             stack[top] = element;
         }
     }
 
     public T remove() {
         if (!isEmpty()) {
-
             T deletedElement = (T) stack[top];
             stack[top] = null;
-
             top--;
             return deletedElement;
         }
@@ -63,9 +59,7 @@ public class Stack<T> implements IStack<T> {
     }
 
     public void clear() {
-        for (int i = 0; i < stack.length; i++) {
-            stack[i] = null;
-        }
+        Arrays.fill(stack, null);
         top = -1;
     }
 
@@ -76,8 +70,8 @@ public class Stack<T> implements IStack<T> {
     }
 
     public void forEach(Consumer<T> fn) {
-        for (int i = 0; i < stack.length; i++) {
-            fn.accept( (T) stack[i]);
+        for (Object o : stack) {
+            fn.accept((T) o);
         }
     }
 

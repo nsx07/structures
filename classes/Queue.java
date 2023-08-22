@@ -1,3 +1,8 @@
+package classes;
+
+import interfaces.IQueue;
+
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -5,7 +10,7 @@ import java.util.function.Consumer;
 @SuppressWarnings("unchecked")
 public class Queue<T> implements IQueue<T> {
 
-    public Object[] queue;
+    private Object[] queue;
     private int top = -1;
     private int base = 0;
 
@@ -35,23 +40,14 @@ public class Queue<T> implements IQueue<T> {
         return top == -1;
     }
 
-    /**
-     * @return First element in queue.
-     */
     public T first() {
         return (T) queue[base];
     }
 
-    /**
-     * @return Last element in queue.
-     */
     public T last() {
         return !isEmpty() ? (T) queue[top] : null;
     }
 
-    /**
-     * @param element An element to insert in queue.
-     */
     public void enqueue(T element) {
         if (!isFull()) {
             top = move(top);
@@ -59,9 +55,6 @@ public class Queue<T> implements IQueue<T> {
         }
     }
 
-    /**
-     * @return Element The element removed from queue.
-     */
     public T dequeue() {
         T element = null;
         if (top == base) {
@@ -78,13 +71,8 @@ public class Queue<T> implements IQueue<T> {
         return element;
     }
 
-    /**
-     * @implNote Clear queue.
-     */
     public void clear() {
-        for (int i = 0; i < queue.length; i++) {
-            queue[i] = null;
-        }
+        Arrays.fill(queue, null);
 
         top = -1;
         base = 0;
@@ -105,7 +93,6 @@ public class Queue<T> implements IQueue<T> {
             zeroBasedIndex = move(zeroBasedIndex);
         }
     }
-
 
     //#endregion
 }
