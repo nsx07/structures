@@ -2,25 +2,191 @@ package classes;
 
 import interfaces.ITree;
 
+import java.util.Objects;
+import java.util.function.Function;
+
 public class Tree<T> implements ITree<T> {
     
-    TreeNode<T> root = null;
-    TreePrinter<T> printer = new TreePrinter<>();
+    private TreeNode<T> root = null;
+    private int length = 0;
+
+    //#region API Methods
 
     public void add(T element) { 
-
+        length++;
         if (root == null) {
-            root = new TreeNode<T>(element);
+            root = new TreeNode<>(element);
             return;
         }
-        
+
+
         add(root, element);
     }
 
+    public T remove(T element) {
+        T elementRemoved = null;
+        // gets the match node, only gets the root if tree there is no branch
+        var node = getNode(x -> x.data.equals(element), root);
+
+        if (node != null) {
+            // gets parent node, using functional method that iterate over all nodes
+            var nodeParent = getNode(x ->(x.rightNode != null && x.rightNode.data.equals(element)) || (x.leftNode != null && x.leftNode.data.equals(element)), root);
+
+            if (nodeParent != null) {
+                // check position of the current node based on hash code
+                boolean isRight = element.hashCode() >= nodeParent.hashCode();
+
+                if (isRight) {
+                    nodeParent.rightNode = null;
+                } else {
+                    nodeParent.leftNode = null;
+                }
+
+                if (node.leftNode == null && node.rightNode == null) {
+                    // check if current node is a leaf
+                    elementRemoved = node.data;
+                } else {
+                    if (node.rightNode != null) {
+                        add(nodeParent, node.rightNode);
+                    }
+
+                    if (node.leftNode != null) {
+                        add(nodeParent, node.leftNode);
+                    }
+                }
+            }
+            else {
+                if (root.data.equals(element)) {
+                    // check if element is root
+                    var oldRoot = root;
+                    root = oldRoot.rightNode;
+                    add(root, oldRoot.leftNode);
+                    elementRemoved = oldRoot.data;
+                }
+            }
+        }
+
+        length--;
+        return elementRemoved;
+    }
+
+    public T get(T element) {
+        TreeNode<T> node = getNode(element, root);
+        return node != null ? node.data : null;
+    }
+
+    public T get(Function<? super T, Boolean> predicate) {
+        var node = get(predicate, root);
+        return node != null ? node.data : null;
+    }
+
+    public void printTree() {
+        BTreePrinter.print(root, this);
+    }
+
+    public void clear() {
+        root = null;
+        length = 0;
+    }
+
+    //#endregion
+
+    //#region Private methods members :: get(), getNode()², add()², getDepth(), getHeight()
+
+    private TreeNode<T> get(Function<? super T, Boolean> predicate, TreeNode<T> node) {
+        if (Objects.isNull(node) || Objects.isNull(predicate)) {
+            return null;
+        }
+
+        TreeNode<T> matchNode = null;
+
+        matchNode = get(predicate, node.leftNode);
+        if (matchNode != null) {
+            return matchNode;
+        }
+
+        matchNode = get(predicate, node.rightNode);
+        if (matchNode != null) {
+            return matchNode;
+        }
+
+        if (predicate.apply(node.data)) {
+            return node;
+        }
+
+        return null;
+    }
+
+    private TreeNode<T> getNode(Function<? super TreeNode<T>, Boolean> predicate, TreeNode<T> node) {
+        if (Objects.isNull(node) || Objects.isNull(predicate)) {
+            return null;
+        }
+
+        TreeNode<T> matchNode = null;
+
+        matchNode = getNode(predicate, node.leftNode);
+        if (matchNode != null) {
+            return matchNode;
+        }
+
+        matchNode = getNode(predicate, node.rightNode);
+        if (matchNode != null) {
+            return matchNode;
+        }
+
+        if (predicate.apply(node)) {
+            return node;
+        }
+
+        return null;
+    }
+
+    private TreeNode<T> getNode(T element, TreeNode<T> node) {
+        if (Objects.isNull(node)) {
+            return null;
+        }
+
+        if (node.data.equals(element)) {
+            return node;
+        }
+
+        TreeNode<T> matchNode = null;
+        if (element.hashCode() > node.hashCode()) {
+            matchNode = getNode(element, node.rightNode);
+        } else {
+            matchNode = getNode(element, node.leftNode);
+        }
+
+        return matchNode;
+    }
+
+    private void add(TreeNode<T> parent, TreeNode<T> node) {
+        if (Objects.isNull(parent) || Objects.isNull(node)) return;
+
+        int parentHash = parent.hashCode();
+        int nodeHash = node.hashCode();
+
+        if (nodeHash >= parentHash) {
+            if (parent.rightNode == null) {
+                parent.rightNode = node;
+            } else {
+                add(parent.rightNode, node);
+            }
+        } else {
+            if (parent.leftNode == null) {
+                parent.leftNode = node;
+            } else {
+                add(parent.leftNode, node);
+            }
+        }
+    }
+
     private void add(TreeNode<T> node, T element) {
+        if (Objects.isNull(element) || Objects.isNull(node)) return;
+
         int nodeHash = node.hashCode();
         int elHash = element.hashCode();
-        
+
         if (elHash >= nodeHash) {
             if (node.rightNode == null) {
                 node.rightNode = new TreeNode<>(element);
@@ -36,176 +202,128 @@ public class Tree<T> implements ITree<T> {
         }
     }
 
-    public T find(T element) {    
-        throw new UnsupportedOperationException("Unimplemented method 'find'");
-    }
-
-    public T remove() {    
-        throw new UnsupportedOperationException("Unimplemented method 'remove'");
-    }
-
-    public void printTree() throws Exception {
-        printer.print(root);        
-    }
-
-
-    public int getDeepth(TreeNode root) {
-        if (root == null) {
-            return 0;
-        } else {
-            int profundidadeEsquerda = getDeepth(root.leftNode);
-            int profundidadeDireita = getDeepth(root.rightNode);
-
-            return Math.max(profundidadeEsquerda, profundidadeDireita) + 1;
+    private int getDepthRecursive(TreeNode<T> current, TreeNode<T> node, int depth) {
+        if (current == null) {
+            return -1;
         }
+        if (current == node) {
+            return depth;
+        }
+
+        int leftDepth = getDepthRecursive(current.leftNode, node, depth + 1);
+        if (leftDepth != -1) {
+            return leftDepth;
+        }
+
+        return getDepthRecursive(current.rightNode, node, depth + 1);
     }
 
-    public int getHeight(TreeNode node) {
-        if (node == null) {
+    private int getDepth(TreeNode<T> node) {
+        return getDepthRecursive(root, node, 0);
+    }
+
+    private int getHeight(TreeNode<T> node) {
+        if (Objects.isNull(node)) {
             return -1;
         } else {
-            int alturaEsquerda = getHeight(node.leftNode);
-            int alturaDireita = getHeight(node.rightNode);
+            int leftHeight = getHeight(node.leftNode);
+            int rightHeight = getHeight(node.rightNode);
 
-            return Math.max(alturaEsquerda, alturaDireita) + 1;
+            return Math.max(leftHeight, rightHeight) + 1;
         }
     }
 
-    public static void main(String[] args) {
+    //#endregion
 
-        Tree<Integer> tree = new Tree<>();
-        tree.add(10);
-        tree.add(5);
-        tree.add(11);
-        tree.add(5);
-        tree.add(11);
-        
+    //#region Private classes members :: BTreePrinter, TreeNode<T>
 
-        try {
-			tree.printTree();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+    private static class BTreePrinter {
+        public static final String ANSI_RESET = "\u001B[0m";
+        public static final String ANSI_BLACK = "\u001B[30m";
+        public static final String ANSI_GREEN = "\u001B[32m";
+        public static final String ANSI_BLUE = "\u001B[34m";
+        private static String traversePreOrder(TreeNode root, Tree tree) {
+            if (root == null) {
+                return "";
+            }
 
+            StringBuilder sb = new StringBuilder();
+            sb.append(ANSI_BLACK);
+            sb.append(root.data);
+            sb.append(" | ↓ " + tree.getHeight(root));
+            sb.append(" | \uD83C\uDF33 " + tree.length);
+            sb.append(ANSI_RESET);
 
-    }
-    
-}
+            String pointerRight = ANSI_BLUE + "└─R─ " + ANSI_RESET;
+            String pointerLeft = ANSI_GREEN + ((root.rightNode != null) ? "├─L─ " : "└─L─ ") + ANSI_RESET;
 
-class TreePrinter<T>
-{
-    /** Node that can be printed */
+            traverseNodes(sb, "", pointerLeft, root.leftNode, root.rightNode != null, tree);
+            traverseNodes(sb, "", pointerRight, root.rightNode, false, tree);
 
-    /**
-     * Print a tree
-     *
-     * @param root
-     *            tree root node
-     * @throws Exception
-     */
-    public void print(TreeNode<T> root) throws Exception
-    {
-        List<List<String>> lines = new List<List<String>>();
-        List<TreeNode<T>> level = new List<TreeNode<T>>();
-        List<TreeNode<T>> next = new List<TreeNode<T>>();
+            return sb.toString();
+        }
+        private static void traverseNodes(StringBuilder sb, String padding, String pointer, TreeNode node, boolean hasRightSibling, Tree tree) {
 
-        level.add(root);
-        int nn = 1;
-
-        int widest = 0;
-
-        while (nn != 0) {
-            List<String> line = new List<String>();
-
-            nn = 0;
-
-            for (TreeNode<T> n : level) {
-                if (n == null) {
-                    line.add(null);
-                    next.add(null);
-                    next.add(null);
+            sb.append("\n");
+            sb.append(padding);
+            sb.append(pointer);
+            sb.append(node != null ? node.data : "null");
+            sb.append(node != null ? " | ↓ " + tree.getHeight(node) + " | ↑ " + tree.getDepth(node) : "");
+            if (node != null) {
+                StringBuilder paddingBuilder = new StringBuilder(padding);
+                if (hasRightSibling) {
+                    paddingBuilder.append("│  ");
                 } else {
-                    String aa = n.data.toString();
-                    line.add(aa);
-                    if (aa.length() > widest) widest = aa.length();
-
-                    next.add(n.leftNode);
-                    next.add(n.rightNode);
-
-                    if (n.leftNode != null) nn++;
-                    if (n.rightNode != null) nn++;
+                    paddingBuilder.append("   ");
                 }
+
+
+
+                String paddingForBoth = paddingBuilder.toString();
+                String pointerRight = ANSI_BLUE + "└─R─ " + ANSI_RESET;
+                String pointerLeft = ANSI_GREEN + ((node.rightNode != null) ? "├─L─ " : "└─L─ ") + ANSI_RESET;
+                traverseNodes(sb, paddingForBoth, pointerLeft, node.leftNode, true, tree);
+                traverseNodes(sb, paddingForBoth, pointerRight, node.rightNode, false, tree);
             }
 
-            if (widest % 2 == 1) widest++;
-
-            lines.add(line);
-
-            List<TreeNode<T>> tmp = level;
-            level = next;
-            next = tmp;
-            next.clear();
         }
-
-        int perpiece = lines.get(lines.size() - 1).size() * (widest + 4);
-        for (int i = 0; i < lines.size(); i++) {
-            List<String> line = lines.get(i);
-            int hpw = (int) Math.floor(perpiece / 2f) - 1;
-
-            if (i > 0) {
-                for (int j = 0; j < line.size(); j++) {
-
-                    // split node
-                    char c = ' ';
-                    if (j % 2 == 1) {
-                        if (line.get(j - 1) != null) {
-                            c = (line.get(j) != null) ? '┴' : '┘';
-                        } else {
-                            if (j < line.size() && line.get(j) != null) c = '└';
-                        }
-                    }
-                    System.out.print(c);
-
-                    // lines and spaces
-                    if (line.get(j) == null) {
-                        for (int k = 0; k < perpiece - 1; k++) {
-                            System.out.print(" ");
-                        }
-                    } else {
-
-                        for (int k = 0; k < hpw; k++) {
-                            System.out.print(j % 2 == 0 ? " " : "─");
-                        }
-                        System.out.print(j % 2 == 0 ? "┌" : "┐");
-                        for (int k = 0; k < hpw; k++) {
-                            System.out.print(j % 2 == 0 ? "─" : " ");
-                        }
-                    }
-                }
-                System.out.println();
-            }
-
-            // print line of numbers
-            for (int j = 0; j < line.size(); j++) {
-
-                String f = line.get(j);
-                if (f == null) f = "";
-                int gap1 = (int) Math.ceil(perpiece / 2f - f.length() / 2f);
-                int gap2 = (int) Math.floor(perpiece / 2f - f.length() / 2f);
-
-                // a number
-                for (int k = 0; k < gap1; k++) {
-                    System.out.print(" ");
-                }
-                System.out.print(f);
-                for (int k = 0; k < gap2; k++) {
-                    System.out.print(" ");
-                }
-            }
+        public static void print(TreeNode root, Tree tree) {
             System.out.println();
-
-            perpiece /= 2;
+            System.out.print(traversePreOrder(root, tree));
+            System.out.println();
         }
     }
+
+    private static class TreeNode<T>  {
+
+        public T data;
+        public TreeNode<T> leftNode;
+        public TreeNode<T> rightNode;
+
+        public List<TreeNode<T>> nodes = new List<>();
+
+        public TreeNode(T data) {
+            this.data = data;
+        }
+
+        @Override
+        public int hashCode() {
+            return data.hashCode();
+        }
+
+        @Override
+        public String toString() {
+            return String.format("""
+                TreeNode {
+                    \tdata = %s,
+                    \tleftNode = %s,
+                    \trightNode = %s
+                }
+                """, data, leftNode, rightNode);
+        }
+
+    }
+
+    //#endregion
+
 }

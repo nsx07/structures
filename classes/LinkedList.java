@@ -7,7 +7,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-public abstract class LinkedList<T> implements Iterable<T>, ILinkedList<T> {
+public class LinkedList<T> implements Iterable<T>, ILinkedList<T> {
 
     protected int length = 0;
     private Node<T> top = null;
