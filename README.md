@@ -1,5 +1,7 @@
 # Documentação da Implementação de Árvore Binária
 
+![Árvore printada](https://raw.githubusercontent.com/nsx07/structures/main/treePrint.png)
+
 Esta é uma implementação em Java de uma estrutura de dados de árvore binária, projetada para armazenar elementos de tipo genérico `T`. Esta árvore binária é implementada como um pacote chamado `classes` e fornece um conjunto de operações comuns de árvores binárias, como adicionar elementos, remover elementos, buscar elementos e imprimir a estrutura da árvore. Também inclui métodos para limpar a árvore, bem como métodos para recuperar a profundidade e altura dos nós dentro da árvore.
 
 ## Sumário
