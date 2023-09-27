@@ -3,6 +3,7 @@ package classes;
 import interfaces.ITree;
 
 import java.util.Objects;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public class Tree<T> implements ITree<T> {
@@ -26,11 +27,11 @@ public class Tree<T> implements ITree<T> {
     public T remove(T element) {
         T elementRemoved = null;
         // gets the match node, only gets the root if tree there is no branch
-        var node = getNode(x -> x.data.equals(element), root);
+        var node = getNode(element, root);
 
         if (node != null) {
             // gets parent node, using functional method that iterate over all nodes
-            var nodeParent = getNode(x ->(x.rightNode != null && x.rightNode.data.equals(element)) || (x.leftNode != null && x.leftNode.data.equals(element)), root);
+            var nodeParent = getNode(x -> (x.rightNode != null && x.rightNode.data.equals(element)) || (x.leftNode != null && x.leftNode.data.equals(element)), root, NodeWay.Both);
 
             if (nodeParent != null) {
                 // check position of the current node based on hash code
@@ -59,15 +60,27 @@ public class Tree<T> implements ITree<T> {
                 if (root.data.equals(element)) {
                     // check if element is root
                     var oldRoot = root;
-                    root = oldRoot.rightNode;
-                    add(root, oldRoot.leftNode);
+
+                    var nRoot = getNode(x -> x.rightNode == null, root.leftNode, NodeWay.Right);
+                    System.out.println(nRoot);
+
+                    if (oldRoot.rightNode != null ) {
+                        root = oldRoot.rightNode;
+                        add(root, oldRoot.leftNode);
+                    } else {
+                        root = oldRoot.leftNode;
+                    }
+
                     elementRemoved = oldRoot.data;
                 }
             }
         }
 
-        length--;
-        return elementRemoved;
+        if (elementRemoved != null) {
+            length--;
+        }
+
+        return root.data;
     }
 
     public T get(T element) {
@@ -91,14 +104,71 @@ public class Tree<T> implements ITree<T> {
 
     //#endregion
 
-    //#region Private methods members :: get(), getNode()², add()², getDepth(), getHeight()
+    //#region Private methods members :: get(), getNode()³, add()², getDepth(), getHeight()
+
+    private TreeNode<T> getNode(BiFunction<? super TreeNode<T>, ? super TreeNode<T>, Boolean> predicate, TreeNode<T> root, TreeNode<T> node, NodeWay way) {
+        if (Objects.isNull(node) || Objects.isNull(predicate)) {
+            return null;
+        }
+
+        TreeNode<T> matchNode;
+
+        if (way == NodeWay.Left || way == NodeWay.Both) {
+            matchNode = getNode(predicate, root, root.leftNode, way);
+            System.out.printf("%s %s", root.data, root.rightNode);
+            if (matchNode != null) {
+                return matchNode;
+            }
+        }
+
+        if (way == NodeWay.Right || way == NodeWay.Both) {
+            matchNode = getNode(predicate, root, root.rightNode, way);
+            if (matchNode != null) {
+                return matchNode;
+            }
+        }
+
+        if (predicate.apply(root, node)) {
+            return node;
+        }
+
+        return null;
+    }
+
+    private TreeNode<T> getNode(Function<? super TreeNode<T>, Boolean> predicate, TreeNode<T> node, NodeWay way) {
+        if (Objects.isNull(node) || Objects.isNull(predicate)) {
+            return null;
+        }
+
+        TreeNode<T> matchNode;
+
+        if (way == NodeWay.Left || way == NodeWay.Both) {
+            matchNode = getNode(predicate, node.leftNode, way);
+            if (matchNode != null) {
+                return matchNode;
+            }
+        }
+
+        if (way == NodeWay.Right || way == NodeWay.Both) {
+            matchNode = getNode(predicate, node.rightNode, way);
+            if (matchNode != null) {
+                return matchNode;
+            }
+        }
+
+        if (predicate.apply(node)) {
+            return node;
+        }
+
+        return null;
+    }
 
     private TreeNode<T> get(Function<? super T, Boolean> predicate, TreeNode<T> node) {
         if (Objects.isNull(node) || Objects.isNull(predicate)) {
             return null;
         }
 
-        TreeNode<T> matchNode = null;
+        TreeNode<T> matchNode;
 
         matchNode = get(predicate, node.leftNode);
         if (matchNode != null) {
@@ -117,30 +187,6 @@ public class Tree<T> implements ITree<T> {
         return null;
     }
 
-    private TreeNode<T> getNode(Function<? super TreeNode<T>, Boolean> predicate, TreeNode<T> node) {
-        if (Objects.isNull(node) || Objects.isNull(predicate)) {
-            return null;
-        }
-
-        TreeNode<T> matchNode = null;
-
-        matchNode = getNode(predicate, node.leftNode);
-        if (matchNode != null) {
-            return matchNode;
-        }
-
-        matchNode = getNode(predicate, node.rightNode);
-        if (matchNode != null) {
-            return matchNode;
-        }
-
-        if (predicate.apply(node)) {
-            return node;
-        }
-
-        return null;
-    }
-
     private TreeNode<T> getNode(T element, TreeNode<T> node) {
         if (Objects.isNull(node)) {
             return null;
@@ -150,7 +196,7 @@ public class Tree<T> implements ITree<T> {
             return node;
         }
 
-        TreeNode<T> matchNode = null;
+        TreeNode<T> matchNode;
         if (element.hashCode() > node.hashCode()) {
             matchNode = getNode(element, node.rightNode);
         } else {
@@ -202,26 +248,6 @@ public class Tree<T> implements ITree<T> {
         }
     }
 
-    private int getDepthRecursive(TreeNode<T> current, TreeNode<T> node, int depth) {
-        if (current == null) {
-            return -1;
-        }
-        if (current == node) {
-            return depth;
-        }
-
-        int leftDepth = getDepthRecursive(current.leftNode, node, depth + 1);
-        if (leftDepth != -1) {
-            return leftDepth;
-        }
-
-        return getDepthRecursive(current.rightNode, node, depth + 1);
-    }
-
-    private int getDepth(TreeNode<T> node) {
-        return getDepthRecursive(root, node, 0);
-    }
-
     private int getHeight(TreeNode<T> node) {
         if (Objects.isNull(node)) {
             return -1;
@@ -233,10 +259,31 @@ public class Tree<T> implements ITree<T> {
         }
     }
 
+    private int getDepth(TreeNode<T> node) {
+        return getDepth(root, node, 0);
+    }
+
+    private int getDepth(TreeNode<T> current, TreeNode<T> node, int depth) {
+        if (current == null) {
+            return -1;
+        }
+        if (current == node) {
+            return depth;
+        }
+
+        int leftDepth = getDepth(current.leftNode, node, depth + 1);
+        if (leftDepth != -1) {
+            return leftDepth;
+        }
+
+        return getDepth(current.rightNode, node, depth + 1);
+    }
+
     //#endregion
 
     //#region Private classes members :: BTreePrinter, TreeNode<T>
 
+    @SuppressWarnings("unchecked")
     private static class BTreePrinter {
         public static final String ANSI_RESET = "\u001B[0m";
         public static final String ANSI_BLACK = "\u001B[30m";
@@ -250,8 +297,10 @@ public class Tree<T> implements ITree<T> {
             StringBuilder sb = new StringBuilder();
             sb.append(ANSI_BLACK);
             sb.append(root.data);
-            sb.append(" | ↓ " + tree.getHeight(root));
-            sb.append(" | \uD83C\uDF33 " + tree.length);
+            sb.append(" | ↓ ");
+            sb.append(tree.getHeight(root));
+            sb.append(" | \uD83C\uDF33 ");
+            sb.append(tree.length);
             sb.append(ANSI_RESET);
 
             String pointerRight = ANSI_BLUE + "└─R─ " + ANSI_RESET;
@@ -269,6 +318,7 @@ public class Tree<T> implements ITree<T> {
             sb.append(pointer);
             sb.append(node != null ? node.data : "null");
             sb.append(node != null ? " | ↓ " + tree.getHeight(node) + " | ↑ " + tree.getDepth(node) : "");
+
             if (node != null) {
                 StringBuilder paddingBuilder = new StringBuilder(padding);
                 if (hasRightSibling) {
@@ -276,8 +326,6 @@ public class Tree<T> implements ITree<T> {
                 } else {
                     paddingBuilder.append("   ");
                 }
-
-
 
                 String paddingForBoth = paddingBuilder.toString();
                 String pointerRight = ANSI_BLUE + "└─R─ " + ANSI_RESET;
@@ -300,10 +348,15 @@ public class Tree<T> implements ITree<T> {
         public TreeNode<T> leftNode;
         public TreeNode<T> rightNode;
 
-        public List<TreeNode<T>> nodes = new List<>();
+        public List<TreeNode<T>> nodes;
 
         public TreeNode(T data) {
             this.data = data;
+        }
+
+        public TreeNode(T data, List<TreeNode<T>> nodes) {
+            this.data = data;
+            this.nodes = nodes;
         }
 
         @Override
@@ -322,6 +375,10 @@ public class Tree<T> implements ITree<T> {
                 """, data, leftNode, rightNode);
         }
 
+    }
+
+    private enum NodeWay {
+        Both, Left, Right
     }
 
     //#endregion
