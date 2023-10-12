@@ -4,11 +4,11 @@ import java.util.function.BiConsumer;
 
 public interface ILinkedList<T> {
     /**
-     * @param element Element to add at Queue.
+     * @param element Element to add at Structure.
      */
     void add(T element);
     /**
-     * @return Element removed from Stack
+     * @return Element removed from Structure
      */
     T remove() throws Exception;
     /**

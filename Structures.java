@@ -39,7 +39,7 @@ public class Structures {
         while (true) {
 
             if (!auto || autoRounds == 0) {
-                tree.printTree();
+                tree.print();
                 int option = askOption();
 
                 switch (option) {

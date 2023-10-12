@@ -80,7 +80,7 @@ public class Tree<T> implements ITree<T> {
         return node != null ? node.data : null;
     }
 
-    public void printTree() {
+    public void print() {
         BTreePrinter.print(root, this);
     }
 

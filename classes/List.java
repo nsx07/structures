@@ -1,6 +1,14 @@
 package classes;
 
 public class List<T> extends LinkedList<T> {
+
+    public List<T> fill(int length, T fillValue) {
+        for (int i = 0; i < length; i++) {
+            this.add(fillValue);
+        }
+        return this;
+    }
+
     public void add(T element, int index) throws Exception {
         validIndex(index);
 
@@ -25,4 +33,6 @@ public class List<T> extends LinkedList<T> {
     public T remove(int index) throws Exception {
         return super.remove(index);
     }
+
+
 }

@@ -8,6 +8,6 @@ public interface ITree<T> {
     T remove(T element);
     T get(T element);
     T get(Function<? super T, Boolean> predicate);
-    void printTree();
+    void print();
 
 }
