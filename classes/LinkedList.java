@@ -208,6 +208,20 @@ public class LinkedList<T> implements Iterable<T>, ILinkedList<T> {
         return null;
     }
 
+    public short findIndex(Function<? super T, Boolean> predicate) {
+        var currentElement = this.base;
+        short index = 0;
+
+        while (currentElement != null) {
+            if (predicate.apply(currentElement.data)) {
+                return index;
+            }
+            currentElement = currentElement.next != null ? currentElement.next : null;
+            index++;
+        }
+        return -1;
+    }
+
     public LinkedList<T> filter(Function<? super T, Boolean> predicate) {
         LinkedList<T> filterList = new List<>();
 
@@ -221,6 +235,22 @@ public class LinkedList<T> implements Iterable<T>, ILinkedList<T> {
         }
         
         return filterList;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb
+                .append("LinkedList {\n\r")
+                .append("Length: ")
+                .append(length)
+        ;
+        forEach((x, i)-> {
+            sb.append("\n\rIndex: ").append(i).append("\n Item: ").append(x);
+        });
+        sb.append("\n}");
+
+        return sb.toString();
     }
 
     public Iterator<T> iterator() {

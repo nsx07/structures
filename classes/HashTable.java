@@ -1,56 +1,42 @@
 package classes;
 
 import java.util.Objects;
+import java.util.Random;
 import java.util.Scanner;
 
 public class HashTable<T> {
 
-    private final List<T> collection = new List<>();
+    private final List<List<T>> collection = new List<>();
     private final List<MemoryState> memory = new List<>();
 
+    private ChainingType chaining = ChainingType.List;
     private final float loadFactor = 0.75f;
     private int maxSize = 16;
 
     public HashTable() {
-        this.collection.fill(maxSize, null);
-        this.memory.fill(maxSize, MemoryState.Empty);
+        initCollection();
     }
 
-    private int hash(T element) {
-
-        var preKey = element.hashCode() + element.toString();
-
-        return getChar(preKey) % maxSize;
-    }
-
-    private int getChar(String key) {
-        int sumChar = 0;
-        char[] charArray = key.toCharArray();
-
-        for (int i = 0; i < charArray.length; i++) {
-            int ascii = (int) charArray[i];
-            sumChar += (int) Math.pow(i, charArray.length - 1) * ascii;
-        }
-
-        return Math.abs(sumChar);
-    }
-
-    private int currentPrime() {
-        int[] primes = new int[]{17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71};
-
-        int numOfDuplication = maxSize / 16 - 1;
-
-        return numOfDuplication >= primes.length
-                ? primes[0]
-                : primes[numOfDuplication];
+    public HashTable(ChainingType chaining) {
+        this.chaining = chaining;
+        initCollection();
     }
 
     public int add(T element) {
         int index = hash(element);
 
         try {
-            collection.set(element, index);
-            memory.set(MemoryState.Filled, index);
+            List<T> position = collection.get(index);
+
+            if (position != null) {
+                position.add(element);
+                memory.set(MemoryState.Collision, index);
+            } else {
+                position = new List<>();
+                position.add(element);
+                collection.set(position, index);
+                memory.set(MemoryState.Filled, index);
+            }
 
             int sizeOfFilledIndex = collection.filter(Objects::nonNull).length;
 
@@ -67,28 +53,39 @@ public class HashTable<T> {
         int index = hash(element);
 
         try {
+
+            List<T> position = collection.get(index);
+
+            if (position != null && !position.isEmpty()) {
+                short indexEl  = position.findIndex(x -> x.equals(element));
+
+                if (indexEl >= 0) {
+                    return position.remove(indexEl).hashCode();
+                }
+
+            }
+
             collection.set(null, index);
             memory.set(MemoryState.Unfilled, index);
+
         } catch (Exception ignore) { }
 
         return index;
     }
 
-    public boolean search(T element) {
+    public T search(T element) {
         int index = hash(element);
 
         try {
-            T elementSearch = collection.get(index);
-
-            return elementSearch != null;
-
+            return collection.get(index).find(x -> x.equals(element));
         } catch (Exception ignore) { }
 
-        return false;
+        return null;
     }
 
     public void clear() {
         collection.clear();
+        memory.clear();
         maxSize = 16;
     }
 
@@ -98,11 +95,99 @@ public class HashTable<T> {
         });
     }
 
-    private void duplicate() {
-        this.maxSize *= 2;
-        this.collection.fill(16, null);
-        this.memory.fill(16, MemoryState.Empty);
+
+
+    private int hash(T element) {
+        String preKey = element.hashCode() + element.toString();
+        Random random = new Random(maxSize);
+
+        int a = random.nextInt(0, nextPrime(maxSize) -1);
+        int b = random.nextInt(0, nextPrime(maxSize) -1);
+        int p = nextPrime(nextPrime(maxSize));
+        int k = preHash(preKey);
+
+        return ((a * k + b) % p) % maxSize;
     }
+
+    private int preHash(String key) {
+        int sumChar = 0;
+        char[] charArray = key.toCharArray();
+
+        for (char c : charArray) {
+            sumChar += (int) c ;
+//            >> (int) Math.pow(key.indexOf(c), 2) / (sumChar + 1);
+        }
+
+        return Math.abs(sumChar);
+    }
+
+    private int nextPrime(int value) {
+        while (true) {
+            boolean prime = isPrime(++value);
+
+            if (prime) {
+                return value;
+            }
+        }
+    }
+
+    private boolean isPrime(int num) {
+        if (num <= 1){
+            return false;
+        }
+
+        if (num == 2) {
+            return true;
+        }
+
+        if (num % 2 == 0){
+            return false;
+        }
+
+        int index = 3;
+        while (index < num) {
+            if (num % index == 0) {
+                return false;
+            }
+
+            index += 3;
+        }
+
+        return true;
+    }
+
+    private void duplicate() {
+        // TODO REFACTOR
+        this.maxSize *= 2;
+        var oldListKeys = collection.filter(Objects::nonNull);
+
+        collection.clear();
+        memory.clear();
+
+        oldListKeys.forEach(x -> {
+            if (x != null) x.forEach(this::add);
+        });
+
+        this.collection.fill(this.maxSize, null);
+        this.memory.fill(this.maxSize, MemoryState.Empty);
+    }
+
+    private void initCollection() {
+        this.collection.fill(maxSize, null);
+        this.memory.fill(maxSize, MemoryState.Empty);
+    }
+
+
+
+    private enum MemoryState {
+        Filled, Unfilled, Empty, Collision
+    }
+
+    public enum ChainingType {
+        List, Tree, Hash
+    }
+
+
 
     public static void main(String[] args) {
         HashTable<Integer> hashT = new HashTable<>();
@@ -131,9 +216,5 @@ public class HashTable<T> {
 
         }
 
-    }
-
-    public enum MemoryState {
-        Filled, Unfilled, Empty, Collision
     }
 }
