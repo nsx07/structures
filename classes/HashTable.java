@@ -3,13 +3,11 @@ package classes;
 import java.util.Objects;
 import java.util.Random;
 import java.util.Scanner;
+import java.util.UUID;
 
-public class HashTable<T> {
+public class HashTable<K, V> {
 
-    private final List<List<T>> collection = new List<>();
-    private final List<MemoryState> memory = new List<>();
-
-    private ChainingType chaining = ChainingType.List;
+    private final List<List<HashMap<K, V>>> collection = new List<>();
     private final float loadFactor = 0.75f;
     private int maxSize = 16;
 
@@ -17,30 +15,31 @@ public class HashTable<T> {
         initCollection();
     }
 
-    public HashTable(ChainingType chaining) {
-        this.chaining = chaining;
-        initCollection();
-    }
+    //#region 'Public Methods'
 
-    public int add(T element) {
-        int index = hash(element);
+    public int add(K key, V element) {
+        HashMap<K, V> map = new HashMap<>(key, element);
+
+        if (this.search(map.key) != null) {
+            this.remove(map.key);
+        }
+
+        int index = this.hash(map);
 
         try {
-            List<T> position = collection.get(index);
+            List<HashMap<K, V>> position = this.collection.get(index);
 
             if (position != null) {
-                position.add(element);
-                memory.set(MemoryState.Collision, index);
+                position.add(map);
             } else {
                 position = new List<>();
-                position.add(element);
-                collection.set(position, index);
-                memory.set(MemoryState.Filled, index);
+                position.add(map);
+                this.collection.set(position, index);
             }
 
-            int sizeOfFilledIndex = collection.filter(Objects::nonNull).length;
+            int sizeOfFilledIndex = this.collection.filter(Objects::nonNull).length;
 
-            if (sizeOfFilledIndex >= maxSize * loadFactor) {
+            if (sizeOfFilledIndex >= this.maxSize * this.loadFactor) {
                 duplicate();
             }
 
@@ -49,56 +48,61 @@ public class HashTable<T> {
         return index;
     }
 
-    public int remove(T element) {
-        int index = hash(element);
+    public int remove(K key) {
+        int index = this.hash(getMap(key, null));
 
         try {
 
-            List<T> position = collection.get(index);
+            List<HashMap<K, V>> position = this.collection.get(index);
 
             if (position != null && !position.isEmpty()) {
-                short indexEl  = position.findIndex(x -> x.equals(element));
+                short indexEl  = position.findIndex(x -> x.key.equals(key));
 
                 if (indexEl >= 0) {
                     return position.remove(indexEl).hashCode();
                 }
-
             }
 
-            collection.set(null, index);
-            memory.set(MemoryState.Unfilled, index);
+            this.collection.set(null, index);
 
         } catch (Exception ignore) { }
 
         return index;
     }
 
-    public T search(T element) {
-        int index = hash(element);
+    public V search(K key) {
+        int index = this.hash(getMap(key, null));
 
         try {
-            return collection.get(index).find(x -> x.equals(element));
+            return this.collection.get(index).find(x -> x.key.equals(key)).value;
         } catch (Exception ignore) { }
 
         return null;
     }
 
     public void clear() {
-        collection.clear();
-        memory.clear();
-        maxSize = 16;
+        this.collection.clear();
+        this.maxSize = 16;
     }
 
     public void print() {
-        collection.forEach((el, index) -> {
+        this.collection.forEach((el, index) -> {
             System.out.println(index + " " + el);
         });
     }
 
+    //#endregion
 
+    private HashMap<K, V> getMap(K key, V value) {
+        return new HashMap<>(key, value);
+    }
 
-    private int hash(T element) {
-        String preKey = element.hashCode() + element.toString();
+    private void initCollection() {
+        this.collection.fill(maxSize, null);
+    }
+
+    private int hash(HashMap<K, V> map) {
+        String preKey = map.key.hashCode() + map.key.toString();
         Random random = new Random(maxSize);
 
         int a = random.nextInt(0, nextPrime(maxSize) -1);
@@ -107,18 +111,6 @@ public class HashTable<T> {
         int k = preHash(preKey);
 
         return ((a * k + b) % p) % maxSize;
-    }
-
-    private int preHash(String key) {
-        int sumChar = 0;
-        char[] charArray = key.toCharArray();
-
-        for (char c : charArray) {
-            sumChar += (int) c ;
-//            >> (int) Math.pow(key.indexOf(c), 2) / (sumChar + 1);
-        }
-
-        return Math.abs(sumChar);
     }
 
     private int nextPrime(int value) {
@@ -156,41 +148,59 @@ public class HashTable<T> {
         return true;
     }
 
+    private int preHash(String key) {
+        int sumChar = 0;
+        char[] charArray = key.toCharArray();
+
+        for (char c : charArray) {
+            sumChar += (int) c >> (int) Math.pow(key.indexOf(c), 2) / (sumChar + 1);
+        }
+
+        return Math.abs(sumChar);
+    }
+
     private void duplicate() {
-        // TODO REFACTOR
         this.maxSize *= 2;
         var oldListKeys = collection.filter(Objects::nonNull);
 
         collection.clear();
-        memory.clear();
+
+        initCollection();
 
         oldListKeys.forEach(x -> {
-            if (x != null) x.forEach(this::add);
+            if (x != null) {
+                x.forEach(y -> this.add(y.key, y.value));
+            }
         });
-
-        this.collection.fill(this.maxSize, null);
-        this.memory.fill(this.maxSize, MemoryState.Empty);
-    }
-
-    private void initCollection() {
-        this.collection.fill(maxSize, null);
-        this.memory.fill(maxSize, MemoryState.Empty);
     }
 
 
+    public static class Person {
+        public int id;
+        public String name;
 
-    private enum MemoryState {
-        Filled, Unfilled, Empty, Collision
+        public Person(int id, String name) {
+            this.id = id;
+            this.name = name;
+        }
     }
 
-    public enum ChainingType {
-        List, Tree, Hash
+    public static class HashMap<K, V> {
+        public K key;
+        public V value;
+
+        public HashMap(K key, V value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        public String toString() {
+            return "HashMap{" + "key=" + key + ", value=" + value + '}';
+        }
     }
-
-
 
     public static void main(String[] args) {
-        HashTable<Integer> hashT = new HashTable<>();
+        HashTable<Integer, Person> hashT = new HashTable<>();
         Scanner scan = new Scanner(System.in);
         int value = 0;
 
@@ -198,7 +208,8 @@ public class HashTable<T> {
             value = scan.nextInt();
             switch (value) {
                 case 0 -> {
-                    System.out.println(hashT.add(scan.nextInt()));
+                    int i = scan.nextInt();
+                    System.out.println(hashT.add(i, new Person(i, UUID.randomUUID().toString())));
                 }
                 case 1 -> {
                     System.out.println(hashT.remove(scan.nextInt()));
@@ -217,4 +228,5 @@ public class HashTable<T> {
         }
 
     }
+
 }
