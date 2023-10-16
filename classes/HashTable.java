@@ -7,7 +7,7 @@ import java.util.UUID;
 
 public class HashTable<K, V> {
 
-    private final List<List<HashMap<K, V>>> collection = new List<>();
+    private final List<List<HashNode<K, V>>> collection = new List<>();
     private final float loadFactor = 0.75f;
     private int maxSize = 16;
 
@@ -18,7 +18,7 @@ public class HashTable<K, V> {
     //#region 'Public Methods'
 
     public int add(K key, V element) {
-        HashMap<K, V> map = new HashMap<>(key, element);
+        HashNode<K, V> map = new HashNode<>(key, element);
 
         if (this.search(map.key) != null) {
             this.remove(map.key);
@@ -27,7 +27,7 @@ public class HashTable<K, V> {
         int index = this.hash(map);
 
         try {
-            List<HashMap<K, V>> position = this.collection.get(index);
+            List<HashNode<K, V>> position = this.collection.get(index);
 
             if (position != null) {
                 position.add(map);
@@ -53,7 +53,7 @@ public class HashTable<K, V> {
 
         try {
 
-            List<HashMap<K, V>> position = this.collection.get(index);
+            List<HashNode<K, V>> position = this.collection.get(index);
 
             if (position != null && !position.isEmpty()) {
                 short indexEl  = position.findIndex(x -> x.key.equals(key));
@@ -62,8 +62,6 @@ public class HashTable<K, V> {
                     return position.remove(indexEl).hashCode();
                 }
             }
-
-            this.collection.set(null, index);
 
         } catch (Exception ignore) { }
 
@@ -87,21 +85,43 @@ public class HashTable<K, V> {
 
     public void print() {
         this.collection.forEach((el, index) -> {
-            System.out.println(index + " " + el);
+            System.out.println(index + " - " + el);
         });
     }
 
     //#endregion
 
-    private HashMap<K, V> getMap(K key, V value) {
-        return new HashMap<>(key, value);
+    //#region 'Private Methods'
+
+    private HashNode<K, V> getMap(K key, V value) {
+        return new HashNode<>(key, value);
     }
 
     private void initCollection() {
         this.collection.fill(maxSize, null);
     }
 
-    private int hash(HashMap<K, V> map) {
+    
+    private void duplicate() {
+        this.maxSize *= 2;
+        var oldListKeys = collection.filter(Objects::nonNull);
+
+        collection.clear();
+
+        initCollection();
+
+        oldListKeys.forEach(x -> {
+            if (x != null) {
+                x.forEach(y -> this.add(y.key, y.value));
+            }
+        });
+    }
+
+    //#endregion
+
+    //#region 'Hashing'
+
+    private int hash(HashNode<K, V> map) {
         String preKey = map.key.hashCode() + map.key.toString();
         Random random = new Random(maxSize);
 
@@ -112,6 +132,22 @@ public class HashTable<K, V> {
 
         return ((a * k + b) % p) % maxSize;
     }
+
+    private int preHash(String key) {
+        int sumChar = 0;
+        char[] charArray = key.toCharArray();
+
+        for (char c : charArray) {
+            sumChar += (int) c >> (int) Math.pow(key.indexOf(c) + 1, 2) / (sumChar + 1);
+            System.out.printf("%d %d %d \n",(int) c, (int) Math.pow(key.indexOf(c) + 1, 2), (sumChar + 1));
+        }
+
+        return Math.abs(sumChar);
+    }
+
+    //#endregion
+
+    //#region 'Primes'
 
     private int nextPrime(int value) {
         while (true) {
@@ -148,32 +184,22 @@ public class HashTable<K, V> {
         return true;
     }
 
-    private int preHash(String key) {
-        int sumChar = 0;
-        char[] charArray = key.toCharArray();
+    //#endregion
 
-        for (char c : charArray) {
-            sumChar += (int) c >> (int) Math.pow(key.indexOf(c), 2) / (sumChar + 1);
+    public static class HashNode<K, V> {
+        public K key;
+        public V value;
+        public String hash;
+
+        public HashNode(K key, V value) {
+            this.key = key;
+            this.value = value;
         }
 
-        return Math.abs(sumChar);
+        public String toString() {
+        return "HashNode{ " + "key = " + key + ", value = " + value + " }";
+        }
     }
-
-    private void duplicate() {
-        this.maxSize *= 2;
-        var oldListKeys = collection.filter(Objects::nonNull);
-
-        collection.clear();
-
-        initCollection();
-
-        oldListKeys.forEach(x -> {
-            if (x != null) {
-                x.forEach(y -> this.add(y.key, y.value));
-            }
-        });
-    }
-
 
     public static class Person {
         public int id;
@@ -182,20 +208,6 @@ public class HashTable<K, V> {
         public Person(int id, String name) {
             this.id = id;
             this.name = name;
-        }
-    }
-
-    public static class HashMap<K, V> {
-        public K key;
-        public V value;
-
-        public HashMap(K key, V value) {
-            this.key = key;
-            this.value = value;
-        }
-
-        public String toString() {
-            return "HashMap{" + "key=" + key + ", value=" + value + '}';
         }
     }
 
@@ -226,6 +238,8 @@ public class HashTable<K, V> {
             }
 
         }
+
+        scan.close();
 
     }
 
