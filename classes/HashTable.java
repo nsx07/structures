@@ -1,19 +1,10 @@
 package classes;
 
 import java.util.Objects;
-import java.util.Random;
 import java.util.Scanner;
 import java.util.UUID;
 
-public class HashTable<K, V> {
-
-    private final List<List<HashNode<K, V>>> collection = new List<>();
-    private final float loadFactor = 0.75f;
-    private int maxSize = 16;
-
-    public HashTable() {
-        initCollection();
-    }
+public class HashTable<K, V> extends AbstractHash<K, V, List<AbstractHash.HashNode<K, V>>> {
 
     //#region 'Public Methods'
 
@@ -49,7 +40,7 @@ public class HashTable<K, V> {
     }
 
     public int remove(K key) {
-        int index = this.hash(getMap(key, null));
+        int index = this.hash(getMap(key));
 
         try {
 
@@ -68,8 +59,8 @@ public class HashTable<K, V> {
         return index;
     }
 
-    public V search(K key) {
-        int index = this.hash(getMap(key, null));
+    public Object search(K key) {
+        int index = this.hash(getMap(key));
 
         try {
             return this.collection.get(index).find(x -> x.key.equals(key)).value;
@@ -93,18 +84,13 @@ public class HashTable<K, V> {
 
     //#region 'Private Methods'
 
-    private HashNode<K, V> getMap(K key, V value) {
-        return new HashNode<>(key, value);
+    private HashNode<K, V> getMap(K key) {
+        return new HashNode<>(key, null);
     }
-
-    private void initCollection() {
-        this.collection.fill(maxSize, null);
-    }
-
     
     private void duplicate() {
         this.maxSize *= 2;
-        var oldListKeys = collection.filter(Objects::nonNull);
+        LinkedList<List<HashNode<K, V>>> oldListKeys = collection.filter(Objects::nonNull);
 
         collection.clear();
 
@@ -118,88 +104,6 @@ public class HashTable<K, V> {
     }
 
     //#endregion
-
-    //#region 'Hashing'
-
-    private int hash(HashNode<K, V> map) {
-        String preKey = map.key.hashCode() + map.key.toString();
-        Random random = new Random(maxSize);
-
-        int a = random.nextInt(0, nextPrime(maxSize) -1);
-        int b = random.nextInt(0, nextPrime(maxSize) -1);
-        int p = nextPrime(nextPrime(maxSize));
-        int k = preHash(preKey);
-
-        return ((a * k + b) % p) % maxSize;
-    }
-
-    private int preHash(String key) {
-        int sumChar = 0;
-        char[] charArray = key.toCharArray();
-
-        for (char c : charArray) {
-            sumChar += (int) c >> (int) Math.pow(key.indexOf(c) + 1, 2) / (sumChar + 1);
-            System.out.printf("%d %d %d \n",(int) c, (int) Math.pow(key.indexOf(c) + 1, 2), (sumChar + 1));
-        }
-
-        return Math.abs(sumChar);
-    }
-
-    //#endregion
-
-    //#region 'Primes'
-
-    private int nextPrime(int value) {
-        while (true) {
-            boolean prime = isPrime(++value);
-
-            if (prime) {
-                return value;
-            }
-        }
-    }
-
-    private boolean isPrime(int num) {
-        if (num <= 1){
-            return false;
-        }
-
-        if (num == 2) {
-            return true;
-        }
-
-        if (num % 2 == 0){
-            return false;
-        }
-
-        int index = 3;
-        while (index < num) {
-            if (num % index == 0) {
-                return false;
-            }
-
-            index += 3;
-        }
-
-        return true;
-    }
-
-    //#endregion
-
-    public static class HashNode<K, V> {
-        public K key;
-        public V value;
-        public String hash;
-
-        public HashNode(K key, V value) {
-            this.key = key;
-            this.value = value;
-        }
-
-        public String toString() {
-        return "HashNode{ " + "key = " + key + ", value = " + value + " }";
-        }
-    }
 
     public static class Person {
         public int id;
