@@ -14,7 +14,7 @@ public class LinkedList<T> implements Iterable<T>, ILinkedList<T> {
     private Node<T> base = null;
     private Exception indexOutBoundsException = new Exception("Index out of bounds");
     
-    protected boolean isEmpty() {
+    public boolean isEmpty() {
         return length == 0;
     }
 

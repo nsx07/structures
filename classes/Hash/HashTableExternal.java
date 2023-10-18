@@ -1,10 +1,13 @@
-package classes;
+package classes.Hash;
+
+import classes.LinkedList;
+import classes.List;
 
 import java.util.Objects;
 import java.util.Scanner;
 import java.util.UUID;
 
-public class HashTable<K, V> extends AbstractHash<K, V, List<AbstractHash.HashNode<K, V>>> {
+public class HashTableExternal<K, V> extends AbstractHash<K, V, List<HashNode<K, V>>> {
 
     //#region 'Public Methods'
 
@@ -28,7 +31,7 @@ public class HashTable<K, V> extends AbstractHash<K, V, List<AbstractHash.HashNo
                 this.collection.set(position, index);
             }
 
-            int sizeOfFilledIndex = this.collection.filter(Objects::nonNull).length;
+            int sizeOfFilledIndex = this.collection.filter(Objects::nonNull).size();
 
             if (sizeOfFilledIndex >= this.maxSize * this.loadFactor) {
                 duplicate();
@@ -39,7 +42,7 @@ public class HashTable<K, V> extends AbstractHash<K, V, List<AbstractHash.HashNo
         return index;
     }
 
-    public int remove(K key) {
+    public V remove(K key) {
         int index = this.hash(getMap(key));
 
         try {
@@ -50,16 +53,16 @@ public class HashTable<K, V> extends AbstractHash<K, V, List<AbstractHash.HashNo
                 short indexEl  = position.findIndex(x -> x.key.equals(key));
 
                 if (indexEl >= 0) {
-                    return position.remove(indexEl).hashCode();
+                    return position.remove(indexEl).value;
                 }
             }
 
         } catch (Exception ignore) { }
 
-        return index;
+        return null;
     }
 
-    public Object search(K key) {
+    public V search(K key) {
         int index = this.hash(getMap(key));
 
         try {
@@ -69,24 +72,9 @@ public class HashTable<K, V> extends AbstractHash<K, V, List<AbstractHash.HashNo
         return null;
     }
 
-    public void clear() {
-        this.collection.clear();
-        this.maxSize = 16;
-    }
-
-    public void print() {
-        this.collection.forEach((el, index) -> {
-            System.out.println(index + " - " + el);
-        });
-    }
-
     //#endregion
 
     //#region 'Private Methods'
-
-    private HashNode<K, V> getMap(K key) {
-        return new HashNode<>(key, null);
-    }
     
     private void duplicate() {
         this.maxSize *= 2;
@@ -116,7 +104,7 @@ public class HashTable<K, V> extends AbstractHash<K, V, List<AbstractHash.HashNo
     }
 
     public static void main(String[] args) {
-        HashTable<Integer, Person> hashT = new HashTable<>();
+        HashTableExternal<Integer, Person> hashT = new HashTableExternal<>();
         Scanner scan = new Scanner(System.in);
         int value = 0;
 
@@ -127,18 +115,10 @@ public class HashTable<K, V> extends AbstractHash<K, V, List<AbstractHash.HashNo
                     int i = scan.nextInt();
                     System.out.println(hashT.add(i, new Person(i, UUID.randomUUID().toString())));
                 }
-                case 1 -> {
-                    System.out.println(hashT.remove(scan.nextInt()));
-                }
-                case 2 -> {
-                    System.out.println(hashT.search(scan.nextInt()));
-                }
-                case 3 -> {
-                    hashT.clear();
-                }
-                case 4 -> {
-                    hashT.print();
-                }
+                case 1 -> System.out.println(hashT.remove(scan.nextInt()));
+                case 2 -> System.out.println(hashT.search(scan.nextInt()));
+                case 3 -> hashT.clear();
+                case 4 -> hashT.print();
             }
 
         }
