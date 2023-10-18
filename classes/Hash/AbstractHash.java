@@ -17,12 +17,15 @@ public abstract class AbstractHash<K, V, ChainingType> {
     //#region 'Public & Abstract methods'
 
     public void print() {
+        System.out.println();
         this.collection.forEach((el, index) -> System.out.println(index + " - " + el));
+        System.out.println();
     }
 
     public void clear() {
         this.collection.clear();
         this.maxSize = 16;
+        initCollection();
     }
 
     public abstract int add(K key, V value);
@@ -52,7 +55,7 @@ public abstract class AbstractHash<K, V, ChainingType> {
         char[] charArray = key.toCharArray();
 
         for (char c : charArray) {
-            sumChar += (int) c >>> (sumChar >> 5) + sumChar;
+            sumChar += (int) c;
         }
 
         return Math.abs(sumChar);

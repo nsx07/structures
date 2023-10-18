@@ -93,38 +93,4 @@ public class HashTableExternal<K, V> extends AbstractHash<K, V, List<HashNode<K,
 
     //#endregion
 
-    public static class Person {
-        public int id;
-        public String name;
-
-        public Person(int id, String name) {
-            this.id = id;
-            this.name = name;
-        }
-    }
-
-    public static void main(String[] args) {
-        HashTableExternal<Integer, Person> hashT = new HashTableExternal<>();
-        Scanner scan = new Scanner(System.in);
-        int value = 0;
-
-        while (value != 0x999) {
-            value = scan.nextInt();
-            switch (value) {
-                case 0 -> {
-                    int i = scan.nextInt();
-                    System.out.println(hashT.add(i, new Person(i, UUID.randomUUID().toString())));
-                }
-                case 1 -> System.out.println(hashT.remove(scan.nextInt()));
-                case 2 -> System.out.println(hashT.search(scan.nextInt()));
-                case 3 -> hashT.clear();
-                case 4 -> hashT.print();
-            }
-
-        }
-
-        scan.close();
-
-    }
-
 }

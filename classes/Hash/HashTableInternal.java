@@ -8,7 +8,7 @@ import java.util.Objects;
 public class HashTableInternal<K, V> extends AbstractHash<K, V, HashNode<K, V>> {
 
     public int add(K key, V element) {
-        return add(new HashNode<>(key, element, NodeState.Filled));
+        return add(new HashNode<>(key, element));
     }
 
     public V remove(K key) {
@@ -18,11 +18,22 @@ public class HashTableInternal<K, V> extends AbstractHash<K, V, HashNode<K, V>> 
 
             HashNode<K, V> position = this.collection.get(index);
 
-            if (position != null) {
+            if (position.key != null) {
 
-                // must validate that the position have the same key
                 if (position.key.equals(key)) {
+                    V value = position.value;
                     position.key = null; position.value = null; position.state = NodeState.Unfilled;
+
+                    return value;
+                } else {
+                    int nextIndex = find(index, key, true);
+
+                    if (nextIndex > 0) {
+                        position = collection.get(nextIndex);
+                        position.key = null; position.value = null; position.state = NodeState.Unfilled;
+
+                        return this.collection.get(nextIndex).value;
+                    }
                 }
 
             }
@@ -36,32 +47,46 @@ public class HashTableInternal<K, V> extends AbstractHash<K, V, HashNode<K, V>> 
         int index = this.hash(getMap(key));
 
         try {
-            return this.collection.get(index).value;
+
+            HashNode<K, V> node = this.collection.get(index);
+
+            if (node.key != null && node.key.equals(key)) {
+                return node.value;
+            } else {
+                int nextIndex = find(index, key, true);
+
+                if (nextIndex > 0) {
+                    return this.collection.get(nextIndex).value;
+                }
+            }
+
         } catch (Exception ignore) { }
 
         return null;
     }
 
     private int add(HashNode<K, V> map) {
-        if (this.search(map.key) != null) {
-            this.remove(map.key);
-        }
-
         int index = this.hash(map);
 
         try {
             HashNode<K, V> position = this.collection.get(index);
 
-            if (position != null) {
-                position.state = NodeState.Collision;
-                // find next null;
-                int getNextIndex = find(index, map.key);
+            if (position.key != null) {
 
+                if (position.key == map.key) {
+                    map.state = NodeState.Filled;
+                    collection.set(map, index);
+                    return index;
+
+                }
+
+                map.state = NodeState.Collision;
+                index = find(index, map.key);
             } else {
-
-
-                this.collection.set(map, index);
+                map.state = NodeState.Filled;
             }
+
+            this.collection.set(map, index);
 
             int sizeOfFilledIndex = this.collection.filter(x -> x.state != NodeState.Empty && x.state != NodeState.Unfilled).size();
 
@@ -75,16 +100,22 @@ public class HashTableInternal<K, V> extends AbstractHash<K, V, HashNode<K, V>> 
     }
 
     private int find(int index, K key) {
+        return find(index, key, false);
+    }
 
-        for (int i = index; i < collection.size(); i++) {
+    private int find(int index, K key, boolean matchOnlyByKey) {
+        int i = index;
+
+        do {
             try {
-                if (collection.get(i).key == key || collection.get(i).state == NodeState.Empty) {
+                if (collection.get(i).key == key || (!matchOnlyByKey && collection.get(i).state == NodeState.Empty)) {
                     return i;
                 }
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        }
+            } catch (Exception ignored) { }
+
+            i = i >= (collection.size() - 1) ? 0 : i + 1;
+
+        } while (i != index);
 
         return -1;
     }
@@ -107,5 +138,7 @@ public class HashTableInternal<K, V> extends AbstractHash<K, V, HashNode<K, V>> 
             }
         });
     }
+
+
 
 }
