@@ -1,5 +1,7 @@
 package classes.Hash;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Scanner;
@@ -28,14 +30,14 @@ public class HashTableMain {
         System.out.print(message);
         return scan.nextInt();
     }
-    public static String input(char[] message) {
+    public static String inputString(String message) {
         System.out.print(message);
-        return scan.nextLine();
+        return scan.next();
     }
 
     public static void main(String[] args) {
-        HashTableExternal<Integer, Person> hashT = new HashTableExternal<>();
-//        HashTableInternal<Integer, Person> hashT = new HashTableInternal<>();
+//        HashTableExternal<Integer, Person> hashT = new HashTableExternal<>();
+        HashTableInternal<Integer, Person> hashT = new HashTableInternal<>();
 
         Scanner scan = new Scanner(System.in);
         int value = 0;
@@ -47,22 +49,22 @@ public class HashTableMain {
             switch (value) {
                 case 0 -> {
                     int i = input("id: ");
-                    LocalDateTime start = LocalDateTime.now();
-                    var result = hashT.add(i, new Person(i, UUID.randomUUID().toString()));
+                    Instant start = Instant.now();
+                    var result = hashT.add(i, new Person(i, inputString("nome: ")));
 
-                    System.out.printf("%d - [%d ns]", result, start.until(LocalDateTime.now(), ChronoUnit.NANOS));
+                    System.out.printf("%d - [%d ns]", result, Duration.between(start, Instant.now()).getNano());
                 }
                 case 1 -> {
-                    LocalDateTime start = LocalDateTime.now();
+                    Instant start = Instant.now();
                     var result = hashT.remove(input("id: "));
 
-                    System.out.printf("%s - [%d ns]", result, start.until(LocalDateTime.now(), ChronoUnit.NANOS));
+                    System.out.printf("%s - [%d ns]", result, Duration.between(start, Instant.now()).getNano());
                 }
                 case 2 -> {
-                    LocalDateTime start = LocalDateTime.now();
+                    Instant start = Instant.now();
                     var result = hashT.search(input("id: "));
 
-                    System.out.printf("%s - [%d ns]", result, start.until(LocalDateTime.now(), ChronoUnit.NANOS));
+                    System.out.printf("%s - [%d ns]", result, Duration.between(start, Instant.now()).getNano());
                 }
                 case 3 -> {
                     hashT.print();

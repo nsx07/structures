@@ -23,6 +23,7 @@ public class HashTableInternal<K, V> extends AbstractHash<K, V, HashNode<K, V>> 
                 if (position.key.equals(key)) {
                     V value = position.value;
                     position.key = null; position.value = null; position.state = NodeState.Unfilled;
+                    sizeKeys--;
 
                     return value;
                 } else {
@@ -31,6 +32,7 @@ public class HashTableInternal<K, V> extends AbstractHash<K, V, HashNode<K, V>> 
                     if (nextIndex > 0) {
                         position = collection.get(nextIndex);
                         position.key = null; position.value = null; position.state = NodeState.Unfilled;
+                        sizeKeys--;
 
                         return this.collection.get(nextIndex).value;
                     }
@@ -87,6 +89,7 @@ public class HashTableInternal<K, V> extends AbstractHash<K, V, HashNode<K, V>> 
             }
 
             this.collection.set(map, index);
+            sizeKeys++;
 
             int sizeOfFilledIndex = this.collection.filter(x -> x.state != NodeState.Empty && x.state != NodeState.Unfilled).size();
 

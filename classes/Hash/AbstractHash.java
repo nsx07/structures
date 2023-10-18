@@ -10,6 +10,8 @@ public abstract class AbstractHash<K, V, ChainingType> {
     protected final float loadFactor = 0.75f;
     protected int maxSize = 16;
 
+    protected int sizeKeys = 0;
+
     public AbstractHash() {
         initCollection();
     }
@@ -25,6 +27,7 @@ public abstract class AbstractHash<K, V, ChainingType> {
     public void clear() {
         this.collection.clear();
         this.maxSize = 16;
+        this.sizeKeys = 0;
         initCollection();
     }
 
@@ -42,8 +45,8 @@ public abstract class AbstractHash<K, V, ChainingType> {
         String preKey = map.key.hashCode() + map.key.toString();
         Random random = new Random(maxSize);
 
-        int a = random.nextInt(0, nextPrime(maxSize) -1);
-        int b = random.nextInt(0, nextPrime(maxSize) -1);
+        int a = random.nextInt(1, nextPrime(maxSize) -1);
+        int b = random.nextInt(1, nextPrime(maxSize) -1);
         int p = nextPrime(nextPrime(maxSize));
         int k = preHash(preKey);
 

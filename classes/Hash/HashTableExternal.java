@@ -37,6 +37,8 @@ public class HashTableExternal<K, V> extends AbstractHash<K, V, List<HashNode<K,
                 duplicate();
             }
 
+            sizeKeys++;
+
         } catch (Exception ignored) { }
 
         return index;
@@ -53,6 +55,8 @@ public class HashTableExternal<K, V> extends AbstractHash<K, V, List<HashNode<K,
                 short indexEl  = position.findIndex(x -> x.key.equals(key));
 
                 if (indexEl >= 0) {
+                    sizeKeys--;
+
                     return position.remove(indexEl).value;
                 }
             }
