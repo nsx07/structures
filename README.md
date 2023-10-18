@@ -1,42 +1,43 @@
-# Documentação da Implementação de Árvore Binária
+# Tabela Hash (Hash Table)
 
-![Árvore printada](https://raw.githubusercontent.com/nsx07/structures/main/treePrint.png)
+![](https://raw.githubusercontent.com/nsx07/structures/main/TabelaHash.PNG)
 
-Esta é uma implementação em Java de uma estrutura de dados de árvore binária, projetada para armazenar elementos de tipo genérico `T`. Esta árvore binária é implementada como um pacote chamado `classes` e fornece um conjunto de operações comuns de árvores binárias, como adicionar elementos, remover elementos, buscar elementos e imprimir a estrutura da árvore. Também inclui métodos para limpar a árvore, bem como métodos para recuperar a profundidade e altura dos nós dentro da árvore.
+# Introdução:
 
-## Sumário
-- [Métodos da API](#api-methods)
-- [Métodos Privados](#private-methods)
-- [Classes Privadas](#private-classes)
+Uma tabela hash, também conhecida como tabela de dispersão, é uma estrutura de dados amplamente utilizada na ciência da computação para armazenar e recuperar dados de maneira eficiente. Ela é baseada em um mapeamento entre chaves e valores, em que cada chave única está associada a um valor específico. Este README explicará os conceitos básicos de uma tabela hash e seu funcionamento.
 
-## Métodos da API
+# Como Funciona:
 
-### `void add(T element)`
-Este método adiciona um novo elemento à árvore binária. Se a árvore estiver vazia, ele cria um novo nó raiz com o elemento fornecido. Caso contrário, insere o elemento em uma posição apropriada na árvore com base no código de hash do elemento.
+Uma tabela hash consiste em uma matriz (ou array) de slots, onde os valores são armazenados. Cada slot é acessado por meio de um índice, que é calculado usando uma função de dispersão. Aqui está uma visão geral do processo:
 
-### `T remove(T element)`
-Este método remove um elemento da árvore binária mantendo a estrutura da árvore binária. Ele retorna o elemento que foi removido ou `null` se o elemento não for encontrado na árvore.
+Função de Dispersão (Hash Function): Para inserir ou recuperar um valor na tabela hash, você aplica uma função de dispersão à chave correspondente. A função de dispersão converte a chave em um índice na tabela hash.
 
-### `T get(T element)`
-Este método recupera um elemento da árvore binária com base em seu valor. Ele retorna o elemento se encontrado ou `null` se o elemento não estiver presente na árvore.
+# Inserção de Dados:
 
-### `T get(Function<? super T, Boolean> predicate)`
-Este método recupera um elemento da árvore binária com base em uma função de predicado personalizada. Ele retorna o elemento que satisfaz o predicado ou `null` se nenhum elemento atender ao critério.
+Para inserir um par chave-valor na tabela hash, a chave é passada pela função de dispersão, que determina o índice onde o valor será armazenado. Se houver colisões (ou seja, duas chaves mapeando para o mesmo índice), elas são tratadas usando técnicas como listas encadeadas ou sondagem linear.
 
-### `void printTree()`
-Este método imprime a estrutura da árvore binária, exibindo o valor de cada nó, sua profundidade e o número total de elementos na árvore. A estrutura da árvore é impressa em um formato facilmente compreensível.
+# Recuperação de Dados:
 
-### `void clear()`
-Este método limpa a árvore binária definindo o nó raiz como `null` e redefinindo o comprimento da árvore para zero.
+Para recuperar um valor, você aplica a função de dispersão à chave novamente para calcular o índice e, em seguida, acessa o valor no slot correspondente.
 
-## Métodos Privados
+# Exclusão de Dados: 
 
-A implementação da árvore binária também inclui vários métodos privados usados para operações internas da árvore. Esses métodos não são destinados ao uso externo, mas são cruciais para o funcionamento da árvore binária.
+Para excluir um valor, você também aplica a função de dispersão à chave para encontrar o índice e, em seguida, remove o valor associado.
 
-## Classes Privadas
+# Vantagens:
 
-### `BTreePrinter` (classe privada e estática)
-Esta classe é responsável por imprimir a estrutura da árvore binária de uma forma visualmente agradável. Ela formata e imprime os nós, seus valores, profundidades e o número de elementos na árvore. Ela usa códigos de cores ANSI para destacar e indentação para tornar a estrutura da árvore mais legível.
+Acesso Rápido: As tabelas hash oferecem acesso rápido aos valores com base em chaves únicas. A complexidade média das operações é O(1).
 
-### `TreeNode<T>` (classe privada)
-Esta classe define a estrutura de um nó na árvore binária. Cada nó possui um elemento de dados de tipo `T`, um nó filho esquerdo e um nó filho direito. A classe também inclui um método `hashCode` para calcular o código de hash com base no elemento de dados e um método `toString` para imprimir os detalhes do nó.
+Estrutura Eficiente: São úteis para armazenar grandes volumes de dados de forma eficiente.
+
+Implementação em Diversos Contextos: São amplamente usadas na implementação de dicionários, caches e muitas outras estruturas de dados.
+
+# Limitações:
+
+Colisões: Colisões ocorrem quando duas chaves resultam no mesmo índice. O tratamento de colisões pode afetar o desempenho.
+
+Função de Dispersão Importante: A qualidade da função de dispersão é crucial para distribuir os valores de forma equilibrada nos slots da tabela.
+
+# Conclusão:
+
+As tabelas hash são uma estrutura de dados fundamental na ciência da computação, oferecendo acesso rápido e eficiente a dados com base em chaves únicas. Elas desempenham um papel crucial em uma variedade de aplicativos e algoritmos. É importante escolher a função de dispersão apropriada e considerar o tratamento de colisões ao usá-las.
