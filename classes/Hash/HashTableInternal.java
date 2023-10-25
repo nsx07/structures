@@ -89,14 +89,14 @@ public class HashTableInternal<K, V> extends AbstractHash<K, V, HashNode<K, V>> 
             }
 
             this.collection.set(map, index);
-            sizeKeys++;
 
-            int sizeOfFilledIndex = this.collection.filter(x -> x.state != NodeState.Empty && x.state != NodeState.Unfilled).size();
+            //int sizeOfFilledIndex = this.collection.filter(x -> x.state != NodeState.Empty && x.state != NodeState.Unfilled).size();
 
-            if (sizeOfFilledIndex >= this.maxSize * this.loadFactor) {
+            if (sizeKeys >= this.maxSize * this.loadFactor) {
                 duplicate();
             }
 
+            sizeKeys++;
         } catch (Exception ignored) { }
 
         return index;

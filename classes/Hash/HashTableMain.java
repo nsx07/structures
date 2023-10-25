@@ -36,8 +36,8 @@ public class HashTableMain {
     }
 
     public static void main(String[] args) {
-//        HashTableExternal<Integer, Person> hashT = new HashTableExternal<>();
-        HashTableInternal<Integer, Person> hashT = new HashTableInternal<>();
+        HashTableExternal<Integer, Person> hashT = new HashTableExternal<>();
+//        HashTableInternal<Integer, Person> hashT = new HashTableInternal<>();
 
         Scanner scan = new Scanner(System.in);
         int value = 0;

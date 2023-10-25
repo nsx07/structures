@@ -31,9 +31,9 @@ public class HashTableExternal<K, V> extends AbstractHash<K, V, List<HashNode<K,
                 this.collection.set(position, index);
             }
 
-            int sizeOfFilledIndex = this.collection.filter(Objects::nonNull).size();
+            //int sizeOfFilledIndex = this.collection.filter(Objects::nonNull).size();
 
-            if (sizeOfFilledIndex >= this.maxSize * this.loadFactor) {
+            if (sizeKeys >= this.maxSize * this.loadFactor) {
                 duplicate();
             }
 

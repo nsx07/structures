@@ -41,6 +41,16 @@ public abstract class AbstractHash<K, V, ChainingType> {
 
     //#region 'Hashing'
 
+    /**
+     * hash = ((a * k + b) % p) % m
+     *
+     *  m: total size of table (power of 2);
+     *  p: next greater prime than m;
+     *  a: pseudorandom number between 1 and p - 1
+     *  b: pseudorandom number between 1 and p - 1
+     *  k: ascii value of the key;
+     *
+     */
     protected int hash(HashNode<K, V> map) {
         String preKey = map.key.hashCode() + map.key.toString();
         Random random = new Random(maxSize);
