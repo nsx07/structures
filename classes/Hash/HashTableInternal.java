@@ -1,8 +1,6 @@
 package classes.Hash;
 
 import classes.LinkedList;
-import classes.List;
-
 import java.util.Objects;
 
 public class HashTableInternal<K, V> extends AbstractHash<K, V, HashNode<K, V>> {

@@ -4,8 +4,6 @@ import classes.LinkedList;
 import classes.List;
 
 import java.util.Objects;
-import java.util.Scanner;
-import java.util.UUID;
 
 public class HashTableExternal<K, V> extends AbstractHash<K, V, List<HashNode<K, V>>> {
 
