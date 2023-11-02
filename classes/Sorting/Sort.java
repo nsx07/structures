@@ -11,13 +11,9 @@ public class Sort {
             return values;
         }
         
-        int temp;
-
         for (int i = 0; i < values.length - skip; i++) {
             if (values[i] > values[i + 1]) {
-                temp = values[i];
-                values[i] = values[i + 1];
-                values[i + 1] = temp;
+                Swap(values, i, i + 1, SortType.Bubble);
             }
         }
         
@@ -33,25 +29,17 @@ public class Sort {
     //#region Insertion
 
     public static int[] Insertion(int[] values) {
-        int temp;
+        for (int i = 1; i < values.length; i++) {
 
-        for (int i = 1; i < values.length - 1; i++) {
-
-            if (values[i] > values[i + 1]) {
-                var a = values[i + 1];
-                values[i + 1] = values[i];
-                values[i] = a;
-            } else {
+            if (values[i - 1] > values[i]) {
+                Swap(values, i - 1, i, SortType.Insertion);
 
                 for (int j = i; j > 0; j--) {
-                    if (values[j - 1] > values[j]) {
-                        temp = values[j];
-                        values[j] = values[j - 1];
-                        values[j - 1] = temp;
-                        break;
+
+                    if (values[j - 1] >= values[j]) {
+                        Swap(values, j - 1, j, SortType.Insertion);
                     }
                 }
-                
             }
         }
 
@@ -60,7 +48,7 @@ public class Sort {
 
     //#endregion
 
-    //#region 'QuickSort'
+    //#region QuickSort
 
     public static int[] Quick(int[] values) {
         return Quick(values, 0, values.length - 1);    
@@ -75,12 +63,6 @@ public class Sort {
         return values;
     }
 
-    private static void Swap(int[] v, int from, int to) {
-        int temp = v[from];
-        v[from] = v[to];
-        v[to] = temp;
-    }
-
     private static int Partition(int[] values, int left, int right) {
         
         int i = (left - 1);
@@ -89,40 +71,86 @@ public class Sort {
         for (int j = left; j <= right - 1; j++) {
             if (values[j] < pivot) {
                 i++;
-                Swap(values, i, j);
+                Swap(values, i, j, SortType.Quick);
             }
         }
 
-        Swap(values, i + 1, right);
+        Swap(values, i + 1, right, SortType.Quick);
 
         return (i + 1);
     }
 
     //#endregion
 
+    private static void Swap(int[] v, int from, int to, SortType sortType) {
+        int temp = v[from];
+        v[from] = v[to];
+        v[to] = temp;
+
+        switch (sortType) {
+            case Bubble -> Swaps.bubble++;
+            case Insertion -> Swaps.insertion++;
+            case Quick -> Swaps.quick++;
+        }
+
+        int sw = sortType == SortType.Bubble
+                ? Swaps.bubble : sortType == SortType.Insertion
+                                ? Swaps.insertion : Swaps.quick;
+
+        System.out.printf("Swap %d -> ", sw);
+        print(v, from, to);
+    }
+    public synchronized static void print(int[] values, int ... args) {
+        System.out.print("[ ");
+        for (int i = 0; i < values.length; i++) {
+
+            if (args.length > 0) {
+                if (i == args[0]) {
+                    System.out.print(ANSI_BLUE + values[i] + ANSI_RESET + " ");
+                    continue;
+                }
+                if (i == args[1]) {
+                    System.out.print(ANSI_YELLOW + values[i] + ANSI_RESET + " ");
+                    continue;
+                }
+            }
+
+            System.out.print(values[i] + " ");
+        }
+        System.out.println("]");
+    }
+
+    public static final String ANSI_RESET = "\u001B[0m";
+    public static final String ANSI_YELLOW = "\u001B[33m";
+    public static final String ANSI_BLUE = "\u001B[34m";
+
     public static void main(String[] args) {
+
         int[] a = new int[] { 49, 15, 40, 27, 20, 19, 50, 2, 12, 28, 49, 44, 9, 59, 18, 5, 30, 6, 7, 28 } ;
+        System.out.println("Original Array");
+        print(a);
 
-       int[] insertion = Insertion(Arrays.copyOf(a, a.length));
-    //    int[] bubble = Bubble(Arrays.copyOf(a, a.length));
-    //    int[] quick = Quick(Arrays.copyOf(a, a.length));
+        System.out.println("Bubble Sort");
+        Bubble(Arrays.copyOf(a, a.length));
 
+        System.out.println("\n\nInsertion Sort");
+        Insertion(Arrays.copyOf(a, a.length));
 
-    //    System.out.println("\nBubble Sort\n");
-    //    for (int bi : bubble) {
-    //         System.out.println(bi);
-    //    }
+        System.out.println("\n\nQuick Sort");
+        Quick(Arrays.copyOf(a, a.length));
 
-       System.out.println("\nInsertion Sort\n");
-       for (int j : insertion) {
-           System.out.println(j);
-       }
+    }
 
+    public record Swaps() {
+        static int bubble;
+        static int insertion;
+        static int quick;
+    }
 
-        // System.out.println("\nQuick Sort\n");
-        // for (int j : quick) {
-        //     System.out.println(j);
-        // }
+    public enum SortType {
+        Bubble,
+        Insertion,
+        Quick
     }
 
 }
