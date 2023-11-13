@@ -13,7 +13,7 @@ Exemplo:
 
 Considere o array [5, 1, 4, 2, 3]. O bubble sort começaria comparando o primeiro e o segundo elemento. Como 5 é maior que 1, eles seriam trocados, resultando no array [1, 5, 4, 2, 3]. Em seguida, o algoritmo compararia o segundo e o terceiro elemento. Como 5 é maior que 4, eles seriam trocados, resultando no array [1, 4, 5, 2, 3]. O algoritmo continuaria comparando pares de elementos adjacentes até que não houvesse mais trocas. No final, o array estaria ordenado em ordem crescente: [1, 2, 3, 4, 5].
 
-![](https://raw.githubusercontent.com/nsx07/structures/main/bubblesort.PNG)
+![](https://raw.githubusercontent.com/nsx07/structures/main/bubblesort.png)
 
 # Insertion sort
 
