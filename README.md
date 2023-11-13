@@ -1,43 +1,48 @@
-# Tabela Hash (Hash Table)
 
-![](https://raw.githubusercontent.com/nsx07/structures/main/TabelaHash.PNG)
+# Algoritmos de ordenação
 
-# Introdução:
+Um algoritmo de ordenação é um algoritmo que organiza os elementos de um array em ordem crescente ou decrescente.
 
-Uma tabela hash, também conhecida como tabela de dispersão, é uma estrutura de dados amplamente utilizada na ciência da computação para armazenar e recuperar dados de maneira eficiente. Ela é baseada em um mapeamento entre chaves e valores, em que cada chave única está associada a um valor específico. Este README explicará os conceitos básicos de uma tabela hash e seu funcionamento.
+# Bubble sort
 
-# Como Funciona:
+O bubble sort é um algoritmo de ordenação simples que funciona comparando pares de elementos adjacentes de um array e trocando-os se estiverem na ordem incorreta. O algoritmo começa comparando o primeiro e o segundo elemento do array. Se o primeiro elemento for maior que o segundo elemento, eles são trocados. Em seguida, o algoritmo compara o segundo e o terceiro elemento, e assim por diante, até o final do array.
 
-Uma tabela hash consiste em uma matriz (ou array) de slots, onde os valores são armazenados. Cada slot é acessado por meio de um índice, que é calculado usando uma função de dispersão. Aqui está uma visão geral do processo:
+O bubble sort é um algoritmo in-place, o que significa que ele não requer nenhum armazenamento adicional para realizar a ordenação. No entanto, ele é um algoritmo ineficiente, pois pode realizar um número excessivo de comparações e trocas.
 
-Função de Dispersão (Hash Function): Para inserir ou recuperar um valor na tabela hash, você aplica uma função de dispersão à chave correspondente. A função de dispersão converte a chave em um índice na tabela hash.
+Exemplo:
 
-# Inserção de Dados:
+Considere o array [5, 1, 4, 2, 3]. O bubble sort começaria comparando o primeiro e o segundo elemento. Como 5 é maior que 1, eles seriam trocados, resultando no array [1, 5, 4, 2, 3]. Em seguida, o algoritmo compararia o segundo e o terceiro elemento. Como 5 é maior que 4, eles seriam trocados, resultando no array [1, 4, 5, 2, 3]. O algoritmo continuaria comparando pares de elementos adjacentes até que não houvesse mais trocas. No final, o array estaria ordenado em ordem crescente: [1, 2, 3, 4, 5].
 
-Para inserir um par chave-valor na tabela hash, a chave é passada pela função de dispersão, que determina o índice onde o valor será armazenado. Se houver colisões (ou seja, duas chaves mapeando para o mesmo índice), elas são tratadas usando técnicas como listas encadeadas ou sondagem linear.
+![](https://raw.githubusercontent.com/nsx07/structures/main/bubblesort.PNG)
 
-# Recuperação de Dados:
+# Insertion sort
 
-Para recuperar um valor, você aplica a função de dispersão à chave novamente para calcular o índice e, em seguida, acessa o valor no slot correspondente.
+O insertion sort é um algoritmo de ordenação que funciona comparando cada elemento do array com os elementos anteriores. Se o elemento atual for menor que um dos elementos anteriores, ele é inserido na posição correta.
 
-# Exclusão de Dados: 
+O insertion sort é um algoritmo in-place, o que significa que ele não requer nenhum armazenamento adicional para realizar a ordenação. No entanto, ele pode ser ineficiente para arrays grandes, pois pode realizar um número excessivo de comparações.
 
-Para excluir um valor, você também aplica a função de dispersão à chave para encontrar o índice e, em seguida, remove o valor associado.
+Exemplo:
 
-# Vantagens:
+Considere o array [5, 1, 4, 2, 3]. O insertion sort começaria com o primeiro elemento, que já está na posição correta. Em seguida, o algoritmo compararia o segundo elemento com o primeiro elemento. Como 1 é menor que 5, o elemento 1 seria inserido antes do elemento 5, resultando no array [1, 5, 4, 2, 3]. O algoritmo continuaria comparando os elementos subsequentes com os elementos anteriores, inserindo-os nas posições corretas. No final, o array estaria ordenado em ordem crescente: [1, 2, 3, 4, 5].
 
-Acesso Rápido: As tabelas hash oferecem acesso rápido aos valores com base em chaves únicas. A complexidade média das operações é O(1).
+![](https://raw.githubusercontent.com/nsx07/structures/main/insertionsort.jpg)
 
-Estrutura Eficiente: São úteis para armazenar grandes volumes de dados de forma eficiente.
+# Quick sort
 
-Implementação em Diversos Contextos: São amplamente usadas na implementação de dicionários, caches e muitas outras estruturas de dados.
+O quick sort é um algoritmo de ordenação de divide e impera que funciona dividindo o array em dois subarrays, ordenando cada subarray recursivamente e, em seguida, combinando os dois subarrays ordenados.
 
-# Limitações:
+O quick sort é um algoritmo eficiente para arrays de tamanhos médios a grandes. No entanto, ele pode ser ineficiente para arrays pequenos, pois pode realizar um número excessivo de comparações.
 
-Colisões: Colisões ocorrem quando duas chaves resultam no mesmo índice. O tratamento de colisões pode afetar o desempenho.
+Exemplo
 
-Função de Dispersão Importante: A qualidade da função de dispersão é crucial para distribuir os valores de forma equilibrada nos slots da tabela.
+Considere o array [5, 1, 4, 2, 3]. O quick sort começaria escolhendo um elemento pivot, geralmente o elemento central do array. Em seguida, o algoritmo compararia cada elemento do array com o pivot. Se um elemento for menor que o pivot, ele será movido para o subarray esquerdo. Se um elemento for maior ou igual ao pivot, ele será movido para o subarray direito.
 
-# Conclusão:
+Depois que todos os elementos do array forem classificados em subarrays esquerdo e direito, o algoritmo recursivamente ordenará cada subarray. No final, os dois subarrays ordenados serão combinados para formar um array ordenado.
 
-As tabelas hash são uma estrutura de dados fundamental na ciência da computação, oferecendo acesso rápido e eficiente a dados com base em chaves únicas. Elas desempenham um papel crucial em uma variedade de aplicativos e algoritmos. É importante escolher a função de dispersão apropriada e considerar o tratamento de colisões ao usá-las.
+![](https://raw.githubusercontent.com/nsx07/structures/main/quicksort.png)
+
+# Conclusão
+
+Este programa apresentou três algoritmos de ordenação simples: bubble sort, insertion sort e quick sort. O bubble sort é o algoritmo mais simples, mas também é o menos eficiente. O insertion sort é um pouco mais eficiente que o bubble sort, mas ainda pode ser ineficiente para arrays grandes. O quick sort é o algoritmo mais eficiente, mas pode ser ineficiente para arrays pequenos.
+
+A escolha do algoritmo de ordenação mais adequado depende do tamanho e da ordem inicial do array. Para arrays pequenos, o bubble sort ou o insertion sort podem ser suficientes. Para arrays grandes, o quick sort é geralmente a melhor escolha.
